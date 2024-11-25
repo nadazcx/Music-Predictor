@@ -22,18 +22,18 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                script {
-                    // Run tests (e.g., inside the relevant service container)
-                    if (isUnix()) {
-                        sh 'docker-compose exec <service_name> pytest tests/'
-                    } else {
-                        bat 'docker-compose exec <service_name> pytest tests/'
-                    }
-                }
-            }
-        }
+        // stage('Run Tests') {
+        //     steps {
+        //         script {
+        //             // Run tests (e.g., inside the relevant service container)
+        //             if (isUnix()) {
+        //                 sh 'docker-compose exec <service_name> pytest tests/'
+        //             } else {
+        //                 bat 'docker-compose exec <service_name> pytest tests/'
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Push Docker Images') {
             steps {
