@@ -16,8 +16,8 @@ pipeline {
         stage('Build and Start Services with Docker Compose') {
             steps {
                 script {
-                    // Build and start the services defined in the docker-compose.yml
-                    sh 'docker-compose -f ${DOCKER_COMPOSE_FILE} up --build -d'
+                    // Disable sandbox for the shell execution command
+                    runDockerComposeBuild()
                 }
             }
         }
@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     // Run tests (e.g., inside the relevant service container)
-                    sh 'docker-compose exec <service_name> pytest tests/'
+                    runDockerComposeExec()
                 }
             }
         }
@@ -34,17 +34,33 @@ pipeline {
         stage('Push Docker Images') {
             steps {
                 script {
-                    // If you need to push the images to Docker Hub or a private registry, do that here
-                    sh 'docker-compose push'
+                    // Push Docker images (disable sandbox for this step)
+                    runDockerComposePush()
                 }
             }
         }
 
         stage('Deploy') {
             steps {
-                // Deploy the application, typically by scaling services or bringing them up on a cloud server
+                // Deploy the application
                 echo 'Deploying app...'
             }
         }
     }
+}
+
+// Use @NonCPS to run outside the Groovy CPS sandbox if necessary
+@NonCPS
+def runDockerComposeBuild() {
+    sh 'docker-compose -f ${DOCKER_COMPOSE_FILE} up --build -d'
+}
+
+@NonCPS
+def runDockerComposeExec() {
+    sh 'docker-compose exec <service_name> pytest tests/'
+}
+
+@NonCPS
+def runDockerComposePush() {
+    sh 'docker-compose push'
 }
