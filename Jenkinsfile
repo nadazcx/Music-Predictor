@@ -16,8 +16,8 @@ pipeline {
         stage('Build and Start Services with Docker Compose') {
             steps {
                 script {
-                    // Disable sandbox for the shell execution command
-                    runDockerComposeBuild()
+                    // Use bat instead of sh for Windows
+                    bat 'docker-compose -f ${DOCKER_COMPOSE_FILE} up --build -d'
                 }
             }
         }
@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     // Run tests (e.g., inside the relevant service container)
-                    runDockerComposeExec()
+                    bat 'docker-compose exec <service_name> pytest tests/'
                 }
             }
         }
@@ -35,7 +35,7 @@ pipeline {
             steps {
                 script {
                     // Push Docker images (disable sandbox for this step)
-                    runDockerComposePush()
+                    bat 'docker-compose push'
                 }
             }
         }
@@ -47,20 +47,4 @@ pipeline {
             }
         }
     }
-}
-
-// Use @NonCPS to run outside the Groovy CPS sandbox if necessary
-@NonCPS
-def runDockerComposeBuild() {
-    sh 'docker-compose -f ${DOCKER_COMPOSE_FILE} up --build -d'
-}
-
-@NonCPS
-def runDockerComposeExec() {
-    sh 'docker-compose exec <service_name> pytest tests/'
-}
-
-@NonCPS
-def runDockerComposePush() {
-    sh 'docker-compose push'
 }
