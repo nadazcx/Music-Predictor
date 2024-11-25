@@ -2,29 +2,21 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE_NAME = 'music-predictor'
-        DOCKER_TAG = 'latest'
+        DOCKER_COMPOSE_FILE = 'docker-compose.yml'  // Specify the Docker Compose file if it's not named 'docker-compose.yml'
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/nadazcx/Music-Predictor.git'
+                git 'https://github.com/nadazcx/Music-Predictor.git'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build and Start Services with Docker Compose') {
             steps {
                 script {
-                    sh 'docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} .'
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    sh 'docker push ${DOCKER_IMAGE_NAME}:${DOCKER_TAG}'
+                    // Build and start the services defined in the docker-compose.yml
+                    sh 'docker-compose -f ${DOCKER_COMPOSE_FILE} up --build -d'
                 }
             }
         }
@@ -32,15 +24,24 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    // Run your tests here
-                    sh 'pytest tests/'
+                    // Run tests (e.g., inside the relevant service container)
+                    sh 'docker-compose exec <service_name> pytest tests/'
+                }
+            }
+        }
+
+        stage('Push Docker Images') {
+            steps {
+                script {
+                    // If you need to push the images to Docker Hub or a private registry, do that here
+                    sh 'docker-compose push'
                 }
             }
         }
 
         stage('Deploy') {
             steps {
-                // Deploy your app here, if needed (e.g., to cloud or server)
+                // Deploy the application, typically by scaling services or bringing them up on a cloud server
                 echo 'Deploying app...'
             }
         }
