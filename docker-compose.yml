@@ -5,7 +5,7 @@ services:
    build:
     context: ./frontend
    ports:
-    - "8080:81"
+    - "8082:82"
    volumes:
     - ./frontend/index.html:/var/www/html/index.html
   music-genre-predictor-svm:
