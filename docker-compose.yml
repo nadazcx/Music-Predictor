@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  music-genre-frontend:
+   build:
+    context: ./frontend
+   ports:
+    - "8080:80"
+   volumes:
+    - ./frontend/index.html:/var/www/html/index.html
+  music-genre-predictor-svm:
+    build:
+      context: ./svm
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./svm/svm_model.pkl:/app/svm_model.pkl
+    environment:
+     - MODEL_PATH=/app/svm_model.pkl
+  music-genre-predictor-vgg:
+    build:
+      context: ./vgg
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./vgg/vgg19_model.h5:/app/vgg19_model.h5 
+    environment:
+     - MODEL_PATH=/app/vgg19_model.h5
