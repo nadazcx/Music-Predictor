@@ -8,4 +8,4 @@ COPY ./index.html /var/www/html/
 # RUN docker-php-ext-install mysqli pdo pdo_mysql
 
 # Expose the port that Apache will run on
-EXPOSE 80
+EXPOSE 82
