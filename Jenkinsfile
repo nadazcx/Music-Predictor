@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_COMPOSE_FILE = 'docker-compose.yml'  // Specify the Docker Compose file if it's not named 'docker-compose.yml'
-    }
-
     stages {
         stage('Checkout Code') {
             steps {
@@ -16,8 +12,12 @@ pipeline {
         stage('Build and Start Services with Docker Compose') {
             steps {
                 script {
-                    // Use bat instead of sh for Windows
-                    bat 'docker-compose -f ${DOCKER_COMPOSE_FILE} up --build -d'
+                    // Directly reference the docker-compose.yml file in the repository
+                    if (isUnix()) {
+                        sh 'docker-compose -f docker-compose.yml up --build -d'
+                    } else {
+                        bat 'docker-compose -f docker-compose.yml up --build -d'
+                    }
                 }
             }
         }
@@ -26,7 +26,11 @@ pipeline {
             steps {
                 script {
                     // Run tests (e.g., inside the relevant service container)
-                    bat 'docker-compose exec <service_name> pytest tests/'
+                    if (isUnix()) {
+                        sh 'docker-compose exec <service_name> pytest tests/'
+                    } else {
+                        bat 'docker-compose exec <service_name> pytest tests/'
+                    }
                 }
             }
         }
@@ -35,7 +39,11 @@ pipeline {
             steps {
                 script {
                     // Push Docker images (disable sandbox for this step)
-                    bat 'docker-compose push'
+                    if (isUnix()) {
+                        sh 'docker-compose push'
+                    } else {
+                        bat 'docker-compose push'
+                    }
                 }
             }
         }
